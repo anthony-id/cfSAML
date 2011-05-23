@@ -1,0 +1,13 @@
+Originally written in 2009, this is a rough draft version for public consumption of a 
+ColdFusion helper object to write SAML.
+
+It's purpose is to compose the SAML to post to a service provider for SSO integration. 
+
+It is not a replacement for something like Shibboleth by a long stretch, but has handled
+my Identity Provider needs very well to this point. I needed to add SAML 1.0 at a later 
+point so it was refactored to add that capability.
+
+There is one jar depenendency - xmlsec, the Apache XML Security library.    
+
+Additional configuration and refactoring is needed before this is fully releasable code. 
+It is, however, 99% complete and could be used with a little work. 
