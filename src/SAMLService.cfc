@@ -112,6 +112,7 @@
 		<cfargument name="nameId" type="string" required="true">
 		<cfargument name="samlMetaData" type="struct" require="true">
 		<cfargument name="issuer" type="string" required="true">
+		<cfargument name="recipient" type="string" required="true" hint="The target of the SAML post">
 		<cfset var ssoData = structnew()>
 		<cfset var samlData = arguments.samlMetaData>
 		<cfset var attrib = "">
@@ -123,8 +124,8 @@
 			MajorVersion="1" 
 			MinorVersion="1"
 			IssueInstant="#samlData['NotBefore']#"
-			Recipient="https://test-sso.crmondemand.com/fed/sp/samlv11sso" 
-		>
+			Recipient="#arguments.recipient#"
+			>
 			<samlp:Status>
 				<samlp:StatusCode Value="samlp:Success"></samlp:StatusCode>
 			</samlp:Status>	
