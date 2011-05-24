@@ -1,18 +1,40 @@
 <cfcomponent output="false">
 	
-	<cffunction name="getKeyStoreFile">
+	<cffunction name="init" output="false" access="public">
+		<cfreturn this>
+	</cffunction>
+	
+	<cffunction name="setKeyStoreFile" output="false" access="public">
+		<cfargument name="ksFile" required="true" type="string" hint="The absolute file path to the keystore">
+		<cfset variables.keystoreFile = arguments.ksFile>
 	</cffunction>
 
-	<cffunction name="getKeyPassword">
+	<cffunction name="getKeyStoreFile" output="false" access="public">
+		<cfreturn variables.keystoreFile>
+	</cffunction>
+
+	<cffunction name="setKeyPassword" output="false" access="public">
+		<cfargument name="keyPass" required="true" type="string" hint="The password for the keystore">
+		<cfset variables.keyPassword = arguments.keyPass>
 	</cffunction>
 	
+	<cffunction name="getKeyPassword" output="false" access="public">
+		<cfreturn variables.keyPassword>
+	</cffunction>
 	
-	<!--- Genericised for Public Consumption --->
-	<cffunction name="getSAML" output="false" access="public">
-		<cfargument name="audience" type="string" required="true">
-		<cfargument name="nameId" type="string" required="true">
-		<cfargument name="attribs" type="struct" required="true">
-		<cfargument name="issuer" type="string" required="false" default="https://#cgi.Server_Name#">
+	<cffunction name="setIssuer" output="false" access="public">
+		<cfargument name="issuer" required="true" type="string" hint="The URI of the issuer. Usually the domain from where this is called">
+		<cfset variables.issuer = arguments.issuer>
+	</cffunction>
+	
+	<cffunction name="getIssuer" output="false" access="public">
+		<cfreturn variables.issuer>
+	</cffunction>
+		
+	<cffunction name="getSAML" output="false" access="public" hint="Public interface to create SAML packet">
+		<cfargument name="audience" type="string" required="true" hint="URI of SAML consumer. Usually a service provider">
+		<cfargument name="nameId" type="string" required="true" hint="Value for the nameId node. How the Subject (user) is identified by Identity Provider (us)">
+		<cfargument name="attribs" type="struct" required="true" hint="Additional attributes to pass to service - e.g. firstname, lastname, etc.">
 		<cfargument name="version" type="numeric" required="false" default="2">
 		<cfscript>
 		var samlData = 
@@ -20,7 +42,7 @@
 			,NotAfter = DateFormat(DateConvert('local2utc',DateAdd('n',1,Now())),'YYYY-MM-DDT') & TimeFormat(DateConvert('local2utc',DateAdd('n',1,Now())),'HH:mm:SSZ')
    			,assertionId = createUUID()};
 		var replaceString = "#chr(10)##chr(9)##chr(32)##chr(32)##chr(32)##chr(32)#";
-		var samlAssertionXML = signSAML(createSAML(arguments.audience,arguments.nameId,arguments.attribs,samlData,arguments.issuer,arguments.version),samlData['assertionId'],arguments.version);
+		var samlAssertionXML = signSAML(createSAML(arguments.audience,arguments.nameId,arguments.attribs,samlData,arguments.version),samlData['assertionId'],arguments.version);
 		var samlResponse = toBase64(replace(toString(samlAssertionXML),replaceString,"","ALL"), "utf-8");
 		return samlResponse;
 		</cfscript>
@@ -31,12 +53,11 @@
 		<cfargument name="nameId" type="string" required="true">
 		<cfargument name="attribs" type="struct" required="true">
 		<cfargument name="samlMetaData" type="struct" require="true">
-		<cfargument name="issuer" type="string" required="true">
 		<cfargument name="version" type="numeric" required="false" default="2">
 				
 		<cfswitch expression = "#arguments.version#">
 			<cfcase value="1">
-				<cfreturn createVersion1SAML(arguments.nameId,arguments.samlMetaData,arguments.issuer)>
+				<cfreturn createVersion1SAML(arguments.nameId,arguments.samlMetaData)>
 			</cfcase>
 			<cfdefaultcase>
 				<cfreturn createVersion2SAML(arguments.audience,arguments.nameId,arguments.attribs,samlMetaData)>
@@ -74,7 +95,7 @@
 				xmlns:ds="http://www.w3.org/2000/09/xmldsig#chr(35)#" 
 				xmlns:xenc="http://www.w3.org/2001/04/xmlenc#chr(35)#" 
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<saml:Issuer>https://#cgi.Server_Name#</saml:Issuer> <!--- TODO SET IN PROPERTIES, CONFIG OR AS VARIABLE! --->
+				<saml:Issuer>#getIssuer()#</saml:Issuer> 
 				<saml:Conditions NotAfter="#samlData['NotAfter']#" NotBefore="#samlData['NotBefore']#">
 					<!--- Service Provider(s) --->
 					<saml:AudienceRestriction>
@@ -111,7 +132,6 @@
 	<cffunction name="createVersion1SAML" output="false" access="public">
 		<cfargument name="nameId" type="string" required="true">
 		<cfargument name="samlMetaData" type="struct" require="true">
-		<cfargument name="issuer" type="string" required="true">
 		<cfargument name="recipient" type="string" required="true" hint="The target of the SAML post">
 		<cfset var ssoData = structnew()>
 		<cfset var samlData = arguments.samlMetaData>
@@ -132,7 +152,7 @@
 			<saml:Assertion 
 				AssertionID="#createUUID()#"
 				IssueInstant="#samlData['NotBefore']#" 
-				Issuer="#arguments.issuer#" 
+				Issuer="#getIssuer()#" 
 				MajorVersion="1" 
 				MinorVersion="1" 
 				xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion" 
