@@ -9,7 +9,7 @@
 		var KeyStoreClass = CreateObject("Java" , "java.security.KeyStore");
 		var keystore = KeyStoreClass.getInstance("JKS"); // JKS is the keystore type - may be variable
 		
-		keystore.load(inputStream,arguments.certificateAlias);
+		keystore.load(inputStream,arguments.keyPass.toCharArray());
 		variables.key = keystore.getKey(arguments.certificateAlias,arguments.keyPass.toCharArray());
 		variables.cert = keystore.getCertificate(arguments.certificateAlias);
 		variables.publickey = variables.cert.getPublicKey();	

@@ -205,8 +205,6 @@
 		<cfreturn samlAssertionXML>
 	</cffunction>
 	
-	<!--- TODO Refactor this into either a more friendly function or multiple functions   --->
-	
 	<cffunction name="signSAML" output="false" access="public">
 		<cfargument name="samlAssert">
 		<cfargument name="assertionId">
@@ -216,11 +214,12 @@
 		var samlAssertionElement = samlAssertionXML.getDocumentElement();
 		var samlAssertionDocument = samlAssertionElement.GetOwnerDocument();
 		var samlAssertion = samlAssertionDocument.getFirstChild();
-		var signature = getSignature();
-						
+							
 		var conditionsNode = samlAssertionElement.getElementsByTagName('saml:Conditions');
 		var assertionNode = samlAssertionElement.getElementsByTagName('saml:Assertion');
 		var statusNode = samlAssertionElement.getElementsByTagName('samlp:Status');
+		
+		var signature = getSignature();
 		
 		//set up signature transforms 
 		var transforms = variables.TransformsClass.init(assertionNode.item(0).getOwnerDocument());
