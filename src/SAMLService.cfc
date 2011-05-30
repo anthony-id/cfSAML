@@ -242,7 +242,7 @@
 		//optionally include the cert and public key 
 		signature.addKeyInfo(getKeystore().getCert());
 		signature.addKeyInfo(getKeystore().getPublickey());
-		signature.sign(getKeystore().getKey());
+		signature.sign(getKeystore().getPrivateKey());
 		return samlAssertionXML;
 		</cfscript>
 	</cffunction>

@@ -18,7 +18,7 @@
 		</cfscript>
 	</cffunction>
 	
-	<cffunction name="getKey" access="public" output="false">
+	<cffunction name="getPrivateKey" access="public" output="false">
 		<cfreturn variables.key>
 	</cffunction>
 	
@@ -26,7 +26,7 @@
 		<cfreturn variables.cert>
 	</cffunction>
 	
-	<cffunction name="getCert" access="public" output="false">
+	<cffunction name="getPublicKey" access="public" output="false">
 		<cfreturn variables.publickey>
 	</cffunction>
 </cfcomponent>
