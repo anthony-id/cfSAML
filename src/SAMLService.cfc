@@ -11,7 +11,7 @@
 		
 		variables.TransformsClass = CreateObject("Java","org.apache.xml.security.transforms.Transforms");
 		variables.transformEnvStr = variables.TransformsClass.TRANSFORM_ENVELOPED_SIGNATURE;
-		variables.transformOmitCommentsStr = variables.TransformsClass.TRANSFORM_C14N_EXCL_OMIT_COMMENTS;;
+		variables.transformOmitCommentsStr = variables.TransformsClass.TRANSFORM_C14N_EXCL_OMIT_COMMENTS;
 		
 		return this;
 		</cfscript>
@@ -79,7 +79,7 @@
 		// default is to create version 2 SAML				
 		switch (getSAMLVersion()){
 			case "1":
-				return createVersion1SAML(arguments.nameId,arguments.samlMetaData);
+				return createVersion1SAML(arguments.nameId,arguments.samlMetaData,arguments.audience);
 			break;
 			default:
 				return createVersion2SAML(arguments.audience,arguments.nameId,arguments.attribs,samlMetaData);
@@ -155,7 +155,7 @@
 		<cfreturn samlAssertionXML>
 	</cffunction>
 	
-	<cffunction name="createVersion1SAML" output="false" access="public">
+	<cffunction name="createVersion1SAML" output="false" access="private">
 		<cfargument name="nameId" type="string" required="true">
 		<cfargument name="samlMetaData" type="struct" require="true">
 		<cfargument name="recipient" type="string" required="true" hint="The target of the SAML post">
@@ -205,7 +205,7 @@
 		<cfreturn samlAssertionXML>
 	</cffunction>
 	
-	<cffunction name="signSAML" output="false" access="public">
+	<cffunction name="signSAML" output="false" access="private">
 		<cfargument name="samlAssert">
 		<cfargument name="assertionId">
 		<cfscript>
@@ -219,13 +219,14 @@
 		var assertionNode = samlAssertionElement.getElementsByTagName('saml:Assertion');
 		var statusNode = samlAssertionElement.getElementsByTagName('samlp:Status');
 		
-		var signature = getSignature();
+		var signature = getSignature(samlAssertionDocument);
 		
 		//set up signature transforms 
 		var transforms = variables.TransformsClass.init(assertionNode.item(0).getOwnerDocument());
+		
 		transforms.addTransform(variables.transformEnvStr);
 		transforms.addTransform(variables.transformOmitCommentsStr);
-		
+				
 		switch(getSAMLVersion()) {
 			case "1":
 				// Insert signature before statusNode
@@ -237,7 +238,7 @@
 			break;
 		}
 		
-		//set up the signature 	
+		//set up the signature
 		signature.addDocument("###arguments.assertionId#",transforms);
 		//optionally include the cert and public key 
 		signature.addKeyInfo(getKeystore().getCert());
