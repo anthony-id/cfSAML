@@ -7,7 +7,6 @@
 		SAMLSvc = createObject("component","cfSAML.src.SAMLService").init();
 		SAMLSvc.setKeystore(keystore);
 		SAMLSvc.setIssuer("https://test.issuer.com");
-		
 		</cfscript>
 	</cffunction>
 	
@@ -29,14 +28,16 @@
 	
 	<cffunction name="testSignSAML_returns_valid_xml">
 		<cfscript>
+		var samlData = getSAMLMetaData();	
 		makePublic(SAMLSvc,"createVersion1SAML");
 		makePublic(SAMLSvc,"signSAML");
 		SAMLSvc.setSAMLVersion(1);
-		v1SAML = SAMLSvc.createVersion1SAML("aNameId",getSAMLMetaData(),"https://the.audience.com");
+		v1SAML = SAMLSvc.createVersion1SAML("aNameId",samlData,"https://the.audience.com");
 		assertTrue(isXML(SAMLSvc.signSAML(v1SAML,samlData['assertionId'])));
 		
+		makePublic(SAMLSvc,"createVersion2SAML");
 		SAMLSvc.setSAMLVersion(2);
-		v2SAML = SAMLSvc.createVersion2SAML("https://the.audience.com","aNameId",{},getSAMLMetaData());
+		v2SAML = SAMLSvc.createVersion2SAML("https://the.audience.com","aNameId",{},samlData);
 		assertTrue(isXML(SAMLSvc.signSAML(v2SAML,samlData['assertionId'])));
 		
 		// Could insert xPath assertions as well...but need to be GOOD tests. 

@@ -23,8 +23,7 @@
 	</cffunction>
 	
 	<cffunction name="getKeystore" access="public" output="false">
-	 	<cfargument name="keystoreObject" required="true" type="Keystore">
-	 	<cfreturn variables.keystore>
+	  	<cfreturn variables.keystore>
 	</cffunction>
 	
 	<cffunction name="setIssuer" output="false" access="public">
